@@ -6,32 +6,32 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/11 15:21:35 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/12 18:12:16 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/06/16 15:21:29 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "include/main.h"
 
-int config_addr(t_ping *ping, struct addrinfo *hints, struct addrinfo *res);
+int config_addr(t_ping *ping, struct addrinfo *hints, struct addrinfo **res);
 
 int g_run;
 
-void main_loop(struct addrinfo *res, int sockfd)
+void main_loop(t_ping *ping, struct addrinfo *res, int sockfd)
 {
 	g_run = 1;
 	signal(SIGINT, handle_sigint);
 	int seq = 0;
-	while(g_run)
-	{
-		struct timeval tv_send;
-		gettimeofday(&tv_send, NULL);
+	//while(g_run)
+	//{
+		//struct timeval tv_send;
+		//gettimeofday(&tv_send, NULL);
 
-		send_icmp_packet(sockfd, res, seq++);
+	send_icmp_packet(ping, sockfd, res, seq++);
 
-		listen_packet_reply(sockfd, &tv_send);
+		//listen_packet_reply(sockfd, &tv_send);
 
-		sleep(1);
-	}
+		//sleep(1);
+	//}
 }
 
 int main(int ac, char **av)
@@ -48,9 +48,14 @@ int main(int ac, char **av)
 
 	struct addrinfo hints, *res;
 
-	int sockfd = config_addr(&ping, &hints, res);
+	int sockfd = config_addr(&ping, &hints, &res);
+	if (sockfd == -1)
+	{
+		//freeaddrinfo(res);
+		return (1);
+	}
 
-	main_loop(res, sockfd);
+	main_loop(&ping, res, sockfd);
 
 	freeaddrinfo(res);
 	return (0);

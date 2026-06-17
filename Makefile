@@ -17,7 +17,7 @@ $(NAME): $(OBJ)
 #		make -C lib
 		ar -rcs ft_ping.a $(OBJ)
 		$(CC) $(CFLAGS) main.c ft_ping.a -o $(NAME)
-		clear
+		make clean
 
 clean:
 #		make -C lib clean

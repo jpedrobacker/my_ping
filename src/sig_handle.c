@@ -6,7 +6,7 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/15 15:31:49 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/15 15:31:50 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/06/16 15:07:13 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,5 +15,5 @@
 
 void handle_sigint(int signal)
 {
-	;
+	(void) signal;
 }
