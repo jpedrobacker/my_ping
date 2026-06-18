@@ -6,7 +6,7 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/17 19:16:17 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/17 19:16:18 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/06/17 20:09:51 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,12 @@
 # define ICMP_H
 
 # define _POSIX_C_SOURCE 200112L
+# define _GNU_SOURCE
+# define _DEFAULT_SOURCE
 
 # include <netdb.h>
 # include <netinet/ip_icmp.h>
+# include <netinet/ip.h>
 # include <sys/time.h>
 # include <unistd.h>
 # include <sys/types.h>

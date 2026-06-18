@@ -6,7 +6,7 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/17 19:16:22 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/17 19:16:23 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/06/18 18:43:32 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,8 @@
 static unsigned short calc_checksum(void *address, size_t len)
 {
 	unsigned short *buffer = (unsigned short *)address;
-	unsigned int    sum = 0;
-	unsigned short  result;
+	unsigned int sum = 0;
+	unsigned short result;
 
 	while (len > 1)
 	{
@@ -44,7 +44,6 @@ void send_icmp_packet(t_ping *ping, int sockfd, struct addrinfo *res, int seq)
 
 	struct icmphdr *icmp = (struct icmphdr *)packet;
 
-
 	icmp->type = ICMP_ECHO;
 	icmp->code = 0;
 	icmp->un.echo.id = getpid() & 0xFFFF;
@@ -65,9 +64,42 @@ void send_icmp_packet(t_ping *ping, int sockfd, struct addrinfo *res, int seq)
 		printf("Successfully sent %ld bytes of ICMP data to %s\n", bytes_sent, ping->raw_ip);
 }
 
-
 void listen_packet_reply(int sockfd, struct timeval *tv_send)
 {
-	(void) sockfd;
-	(void) tv_send;
+	char buffer[1024];
+	struct sockaddr_in from;
+	socklen_t from_len = sizeof(from);
+
+	struct timeval timeout = {.tv_sec = 1, .tv_usec = 0};
+	if (setsockopt(sockfd, SOL_SOCKET, SO_RCVTIMEO, &timeout, sizeof(timeout)) < 0)
+	{
+		perror("setsockpt Failed!");
+		return;
+	}
+
+	ssize_t bytes_received = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr *)&from, &from_len);
+
+	if (bytes_received < 0)
+		return;
+
+	struct ip *ip_hdr = (struct ip *)buffer;
+	int ip_hdr_len = ip_hdr->ip_hl * 4;
+
+	if (bytes_received < ip_hdr_len + (ssize_t)sizeof(struct icmphdr))
+		return;
+
+	struct icmphdr *icmp_hdr = (struct icmphdr *)(buffer + ip_hdr_len);
+
+	if (icmp_hdr->un.echo.id == (getpid() & 0xFFFF))
+	{
+		if (icmp_hdr->type == ICMP_ECHOREPLY)
+		{
+			struct timeval tv_recv;
+			gettimeofday(&tv_recv, NULL);
+
+			double rtt = (tv_recv.tv_sec - tv_send->tv_sec) * 1000.0 + (tv_recv.tv_usec - tv_send->tv_usec) / 1000.0;
+
+			printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.2f ms\n", bytes_received - ip_hdr_len, inet_ntoa(from.sin_addr), icmp_hdr->un.echo.sequence, ip_hdr->ip_ttl, rtt);
+		}
+	}
 }

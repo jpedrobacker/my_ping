@@ -6,7 +6,7 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/11 15:21:35 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/16 15:21:29 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/06/17 20:13:24 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,17 +21,17 @@ void main_loop(t_ping *ping, struct addrinfo *res, int sockfd)
 	g_run = 1;
 	signal(SIGINT, handle_sigint);
 	int seq = 0;
-	//while(g_run)
-	//{
-		//struct timeval tv_send;
-		//gettimeofday(&tv_send, NULL);
+	while(g_run)
+	{
+		struct timeval tv_send;
+		gettimeofday(&tv_send, NULL);
 
-	send_icmp_packet(ping, sockfd, res, seq++);
+		send_icmp_packet(ping, sockfd, res, seq++);
 
-		//listen_packet_reply(sockfd, &tv_send);
+		listen_packet_reply(sockfd, &tv_send);
 
-		//sleep(1);
-	//}
+		sleep(1);
+	}
 }
 
 int main(int ac, char **av)
