@@ -6,46 +6,59 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/15 15:31:36 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/16 15:19:45 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/06/27 16:28:46 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/icmp.h"
 #include "../include/parse.h"
 
-int config_addr(t_ping *ping, struct addrinfo *hints, struct addrinfo **res)
+int config_addr(t_ping *ping)
 {
-	memset(hints, 0, sizeof(struct addrinfo));
+	struct sockaddr_storage sock_config = {0};
+	struct addrinfo hints, *res;
 
-	hints->ai_family = AF_INET;
-	hints->ai_socktype = SOCK_RAW;
-	hints->ai_protocol = IPPROTO_ICMP;
-	hints->ai_flags = AI_NUMERICHOST;
+	res = NULL;
 
-	if (getaddrinfo(ping->hostname, NULL, hints, res) != 0)
+	memset(&hints, 0, sizeof(struct addrinfo));
+
+	hints.ai_family = ping->ip_type;
+	hints.ai_socktype = 0;
+	hints.ai_protocol = 0;
+	//hints.ai_flags = AI_NUMERICHOST;
+
+	if (getaddrinfo(ping->hostname, NULL, &hints, res) != 0)
 	{
-		hints->ai_flags = 0;
-		if (getaddrinfo(ping->hostname, NULL, hints, res) != 0)
-		{
-			printf("Invalid IP or Hostname not found!\n");
-			return (-1);
-		}
+		printf("Invalid IP or Hostname not found!\n");
+		return (-1);
 	}
 
-	struct sockaddr_in *ipv4 = (struct sockaddr_in *)(*res)->ai_addr;
-	char ip_str[INET_ADDRSTRLEN];
+	memcpy((struct sockaddr *)&sock_config, res->ai_addr, res->ai_addrlen);
 
-	ping->raw_ip = inet_ntop(AF_INET, &(ipv4->sin_addr), ip_str, sizeof(ip_str));
-	if (ping->raw_ip != NULL)
-		printf("PING %s (%s)\n", ping->hostname, ip_str);
+	if (ping->ip_type == IPV4)
+	{
+		struct sockaddr_in *ipv4 = (struct sockaddr_in *)res->ai_addr;
+		ping->raw_ip = inet_ntop(AF_INET, &(ipv4->sin_addr),ping->ip_str, sizeof(ping->ip_str));
+	}
+	else if (ping->ip_type == IPV6)
+	{
+		struct sockaddr_in *ipv6 = (struct sockaddr_in *)res->ai_addr;
+		ping->raw_ip = inet_ntop(AF_INET, &(ipv6->sin_addr),ping->ip_str, sizeof(ping->ip_str));
+	}
 
-	int sockfd = socket((*res)->ai_family, (*res)->ai_socktype, (*res)->ai_protocol);
+	freeaddrinfo(res);
+
+	int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_ICMP);
 	if (sockfd < 0)
 	{
 		printf("Permission denied or cannot open socket");
-		freeaddrinfo(*res);
 		return (-1);
 	}
+
+	ping->socket.fd = sockfd;
+	ping->socket.remote_addr = sock_config;
+
+	
 
 	return (sockfd);
 }
