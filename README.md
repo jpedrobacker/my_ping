@@ -44,3 +44,12 @@ Not implemented (descoped by choice, not blocked): `-f` (flood), `-l` (preload),
 - RTT is computed from a timestamp embedded in the ICMP payload on send and read back on receive, rather than trusting the caller's local clock — this keeps the design correct if multiple packets are ever in flight at once (not currently the case, since `-f`/`-l` weren't implemented).
 - The send/receive/sleep cycle keeps a consistent ~1s interval between sends regardless of whether a reply arrives quickly or the receive times out.
 - IPv6 was investigated and intentionally **not** implemented — it isn't part of the subject's actual bonus list, and the codebase's prior partial `IPV6` scaffolding was dead/broken (socket creation was hardcoded to `AF_INET`), so it was removed rather than left as a landmine.
+
+## References
+
+- [RFC 792 — Internet Control Message Protocol](https://datatracker.ietf.org/doc/html/rfc792)
+- [RFC 791, §3.1 — Internet Protocol, header format](https://datatracker.ietf.org/doc/html/rfc791#section-3.1)
+- [raw(7) — Linux IPv4 raw sockets](https://man7.org/linux/man-pages/man7/raw.7.html)
+- [icmp(7) — Linux IPv4 ICMP kernel module](https://man7.org/linux/man-pages/man7/icmp.7.html)
+- [getaddrinfo(3)](https://man7.org/linux/man-pages/man3/getaddrinfo.3.html)
+- [ping(8)](https://man7.org/linux/man-pages/man8/ping.8.html)
