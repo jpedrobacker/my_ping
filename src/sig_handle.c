@@ -12,21 +12,18 @@
 
 #include "../include/main.h"
 
-void	signal_handle(int sig)
+int g_run;
+
+static void signal_handle(int sig)
 {
-	extern int g_run;
-
 	(void)sig;
-	g_run = false;
-
-	return;
+	g_run = 0;
 }
 
-void handle_sigint(int signal)
+void handle_sigint(void)
 {
 	struct sigaction sig_config = {0};
 
-	(void)signal;
 	sig_config.sa_handler = signal_handle;
 
 	sigaction(SIGINT, &sig_config, NULL);

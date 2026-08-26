@@ -6,7 +6,7 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/11 15:22:49 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/27 16:20:17 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/08/26 18:51:30 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 # define MAIN_H
 
 # define _POSIX_C_SOURCE 200112L
+# define PING_INTERVAL_SEC 1.0
 
 # include <stdint.h>
 # include <sys/types.h>
@@ -27,9 +28,9 @@
 # include <stdlib.h>
 # include <netdb.h>
 # include <unistd.h>
-# include <argp.h>
 # include <errno.h>
 # include <sys/time.h>
+# include <time.h>
 # include <signal.h>
 # include <float.h>
 # include <math.h>
@@ -37,5 +38,6 @@
 # include "parse.h"
 # include "icmp.h"
 # include "sig_handle.h"
+
 
 #endif

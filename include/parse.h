@@ -15,31 +15,42 @@
 
 # include "main.h"
 
-typedef enum e_ipType
-{
-	IPV4 = AF_INET,
-	IPV6 = AF_INET6
-}	ipType;
+# define DEFAULT_TIMEOUT_SEC 1.0
+# define DEFAULT_PAYLOAD_SIZE 56
 
 typedef struct s_sock_configs
 {
 	int			fd;
 	socklen_t		addr_len;
-	struct sockaddr_in	*ipv4_addr;
-	struct sockaddr_in6	*ipv6_addr;
 	struct sockaddr_storage	remote_addr;
 
 } t_sock_configs;
+
+typedef struct s_stats
+{
+	unsigned int	transmitted;
+	unsigned int	received;
+	double		rtt_min;
+	double		rtt_max;
+	double		rtt_sum;
+	double		rtt_sum2;
+
+}	t_stats;
 
 typedef struct s_ping
 {
 	char *hostname;
 	bool verbose;
 	bool help;
+	bool numeric;
+	int ttl;
+	double timeout_sec;
+	double deadline_sec;
+	size_t payload_size;
 	const char *raw_ip;
-	ipType ip_type;
 	char ip_str[INET_ADDRSTRLEN];
 	t_sock_configs socket;
+	t_stats stats;
 
 }	t_ping;
 

@@ -16,6 +16,8 @@
 
 # include <signal.h>
 
-void	handle_sigint(int signal);
+extern int g_run;
+
+void	handle_sigint(void);
 
 #endif

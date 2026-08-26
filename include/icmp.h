@@ -21,11 +21,10 @@
 # include <stdbool.h>
 
 typedef struct s_ping t_ping;
-struct timeval;
 
-# define ICMP_PACKET_SIZE 64
+# define ICMP_MAX_PAYLOAD 65507
 
-void	send_icmp_packet(t_ping *ping, int sockfd, int seq);
-void	listen_packet_reply(int sockfd, struct timeval *tv_send, bool verbose);
+void	send_icmp_packet(t_ping *ping, int seq);
+void	listen_packet_reply(t_ping *ping);
 
 #endif

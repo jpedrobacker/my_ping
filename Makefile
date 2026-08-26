@@ -1,33 +1,25 @@
 NAME = ft_ping
 CC = gcc
-CLANG = clang
 CFLAGS = -g -Wall -Werror -Wextra -I ./include
 SRC_DIR = src/
-LIBFTPRINTF = lib/libftprintf.a
 FIND = $(shell find $(SRC_DIR))
-SRC = $(filter %.c, $(FIND))
+SRC = $(filter %.c, $(FIND)) main.c
 OBJ = ${SRC:.c=.o}
 
-.c.o:
-	$(CC) $(CFLAGS) -c $< -o $(<:.c=.o)
+.PHONY: all clean fclean re
 
 all: $(NAME)
 
 $(NAME): $(OBJ)
-#		make -C lib
-		ar -rcs ft_ping.a $(OBJ)
-		$(CC) $(CFLAGS) main.c ft_ping.a -o $(NAME)
-		make clean
+	$(CC) $(CFLAGS) $(OBJ) -lm -o $(NAME)
+
+.c.o:
+	$(CC) $(CFLAGS) -c $< -o $(<:.c=.o)
 
 clean:
-#		make -C lib clean
-		rm -rf $(OBJ)
-		clear
+	rm -rf $(OBJ)
 
 fclean: clean
-#		make -C lib fclean
-		rm -rf ft_ping.a
-		rm -rf $(NAME)
-		clear
+	rm -rf $(NAME)
 
 re: fclean all
