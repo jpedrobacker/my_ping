@@ -14,6 +14,9 @@
 # define MAIN_H
 
 # define _POSIX_C_SOURCE 200112L
+
+/* intervalo alvo entre dois envios consecutivos (main_loop, main.c);
+** não é configurável por flag (o subject não pede um -i). */
 # define PING_INTERVAL_SEC 1.0
 
 # include <stdint.h>

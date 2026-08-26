@@ -20,6 +20,7 @@ clean:
 	rm -rf $(OBJ)
 
 fclean: clean
-	rm -rf $(NAME)
+	rm -rf $(NAME).a
+	rm -rf $(NAME).a
 
 re: fclean all

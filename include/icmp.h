@@ -22,6 +22,8 @@
 
 typedef struct s_ping t_ping;
 
+/* maior payload ICMP aceito por -s: 65535 (IP_MAXPACKET) menos o menor
+** cabeçalho IP possível (20 bytes) menos o cabeçalho ICMP (8 bytes). */
 # define ICMP_MAX_PAYLOAD 65507
 
 void	send_icmp_packet(t_ping *ping, int seq);
