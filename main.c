@@ -6,7 +6,7 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/11 15:21:35 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/27 16:25:20 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/08/12 18:56:34 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,22 @@ int config_addr(t_ping *ping);
 
 int g_run;
 
+void print_help(void)
+{
+	printf("Usage: ft_ping [OPTION...] HOST ...\n");
+	printf("Send ICMP ECHO_REQUEST packets to network hosts.\n\n");
+	printf("  -v         verbose output\n");
+	printf("  -?         give this help list\n");
+}
+
 void main_loop(t_ping *ping, int sockfd)
 {
 	g_run = 1;
-	signal(SIGINT, handle_sigint);
+	handle_sigint(SIGINT);
 	int seq = 0;
 	if (ping->verbose == true)
 	{
-		int pid = getpid();
-		printf("PING %s (%s): %ld data bytes\n");
+		printf("PING %s (%s): %ld data bytes\n", ping->hostname, ping->raw_ip, (long)(ICMP_PACKET_SIZE - sizeof(struct icmphdr)));
 	}
 	else
 	{
@@ -35,9 +42,9 @@ void main_loop(t_ping *ping, int sockfd)
 		struct timeval tv_send;
 		gettimeofday(&tv_send, NULL);
 
-		send_icmp_packet(ping, sockfd, res, seq++);
+		send_icmp_packet(ping, sockfd, seq++);
 
-		listen_packet_reply(sockfd, &tv_send);
+		listen_packet_reply(sockfd, &tv_send, ping->verbose);
 
 		sleep(1);
 	}
@@ -45,7 +52,7 @@ void main_loop(t_ping *ping, int sockfd)
 
 void init_ping(t_ping *ping)
 {
-	memset(ping, 0, sizeof(ping));
+	memset(ping, 0, sizeof(*ping));
 	ping->help = false;
 	ping->verbose = false;
 	ping->hostname = NULL;
@@ -63,6 +70,12 @@ int main(int ac, char **av)
 	{
 		printf("Error!\n");
 		return (-1);
+	}
+
+	if (ping.help == true)
+	{
+		print_help();
+		return (0);
 	}
 
 	int sockfd = config_addr(&ping);

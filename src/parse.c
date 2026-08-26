@@ -52,6 +52,8 @@ int parse_arguments(int ac, char **av, t_ping *ping)
 		}
 		i++;
 	}
+	if (ping->help == true)
+		return (0);
 	if (ping->hostname == NULL)
 		return (printf("No hostname found!\n"), 1);
 	return (0);

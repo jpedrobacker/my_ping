@@ -6,7 +6,7 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/15 15:31:36 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/27 16:28:46 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/08/12 19:17:21 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@ int config_addr(t_ping *ping)
 	hints.ai_protocol = 0;
 	//hints.ai_flags = AI_NUMERICHOST;
 
-	if (getaddrinfo(ping->hostname, NULL, &hints, res) != 0)
+	if (getaddrinfo(ping->hostname, NULL, &hints, &res) != 0)
 	{
 		printf("Invalid IP or Hostname not found!\n");
 		return (-1);
@@ -42,9 +42,11 @@ int config_addr(t_ping *ping)
 	}
 	else if (ping->ip_type == IPV6)
 	{
-		struct sockaddr_in *ipv6 = (struct sockaddr_in *)res->ai_addr;
-		ping->raw_ip = inet_ntop(AF_INET, &(ipv6->sin_addr),ping->ip_str, sizeof(ping->ip_str));
+		struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *)res->ai_addr;
+		ping->raw_ip = inet_ntop(AF_INET6, &(ipv6->sin6_addr),ping->ip_str, sizeof(ping->ip_str));
 	}
+
+	ping->socket.addr_len = res->ai_addrlen;
 
 	freeaddrinfo(res);
 
@@ -58,7 +60,7 @@ int config_addr(t_ping *ping)
 	ping->socket.fd = sockfd;
 	ping->socket.remote_addr = sock_config;
 
-	
+
 
 	return (sockfd);
 }

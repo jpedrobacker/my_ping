@@ -6,7 +6,7 @@
 /*   By: jbergfel <jbergfel@student.42.rio>         +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/17 19:16:22 by jbergfel          #+#    #+#             */
-/*   Updated: 2026/06/18 18:43:32 by jbergfel         ###   ########.fr       */
+/*   Updated: 2026/08/12 19:17:28 by jbergfel         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,9 +35,9 @@ static unsigned short calc_checksum(void *address, size_t len)
 	return (result);
 }
 
-void send_icmp_packet(t_ping *ping, int sockfd, struct addrinfo *res, int seq)
+void send_icmp_packet(t_ping *ping, int sockfd, int seq)
 {
-	char packet[64];
+	char packet[ICMP_PACKET_SIZE];
 	size_t packet_len = sizeof(packet);
 
 	memset(packet, 0, packet_len);
@@ -57,14 +57,14 @@ void send_icmp_packet(t_ping *ping, int sockfd, struct addrinfo *res, int seq)
 
 	icmp->checksum = calc_checksum(packet, packet_len);
 
-	ssize_t bytes_sent = sendto(sockfd, packet, packet_len, 0, res->ai_addr, res->ai_addrlen);
+	ssize_t bytes_sent = sendto(sockfd, packet, packet_len, 0, (struct sockaddr *)&ping->socket.remote_addr, ping->socket.addr_len);
 	if (bytes_sent < 0)
 		perror("Send to Failed!\n");
 	else
 		printf("Successfully sent %ld bytes of ICMP data to %s\n", bytes_sent, ping->raw_ip);
 }
 
-void listen_packet_reply(int sockfd, struct timeval *tv_send)
+void listen_packet_reply(int sockfd, struct timeval *tv_send, bool verbose)
 {
 	char buffer[1024];
 	struct sockaddr_in from;
@@ -90,9 +90,9 @@ void listen_packet_reply(int sockfd, struct timeval *tv_send)
 
 	struct icmphdr *icmp_hdr = (struct icmphdr *)(buffer + ip_hdr_len);
 
-	if (icmp_hdr->un.echo.id == (getpid() & 0xFFFF))
+	if (icmp_hdr->type == ICMP_ECHOREPLY)
 	{
-		if (icmp_hdr->type == ICMP_ECHOREPLY)
+		if (icmp_hdr->un.echo.id == (getpid() & 0xFFFF))
 		{
 			struct timeval tv_recv;
 			gettimeofday(&tv_recv, NULL);
@@ -101,5 +101,24 @@ void listen_packet_reply(int sockfd, struct timeval *tv_send)
 
 			printf("%ld bytes from %s: icmp_seq=%d ttl=%d time=%.2f ms\n", bytes_received - ip_hdr_len, inet_ntoa(from.sin_addr), icmp_hdr->un.echo.sequence, ip_hdr->ip_ttl, rtt);
 		}
+	}
+	else if (verbose == true)
+	{
+		const char *type_str;
+
+		if (icmp_hdr->type == ICMP_DEST_UNREACH)
+			type_str = "Destination Unreachable";
+		else if (icmp_hdr->type == ICMP_TIME_EXCEEDED)
+			type_str = "Time Exceeded";
+		else if (icmp_hdr->type == ICMP_SOURCE_QUENCH)
+			type_str = "Source Quench";
+		else if (icmp_hdr->type == ICMP_REDIRECT)
+			type_str = "Redirect";
+		else if (icmp_hdr->type == ICMP_PARAMETERPROB)
+			type_str = "Parameter Problem";
+		else
+			type_str = "Unknown ICMP type";
+
+		printf("From %s: %s (type=%d code=%d)\n", inet_ntoa(from.sin_addr), type_str, icmp_hdr->type, icmp_hdr->code);
 	}
 }
